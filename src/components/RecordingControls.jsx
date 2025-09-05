@@ -1,12 +1,14 @@
 import React from 'react'
-import { Video, Square, Phone, Clock, Play } from 'lucide-react'
+import { Video, Square, Phone, Clock, Play, Crown, AlertTriangle } from 'lucide-react'
 
 const RecordingControls = ({ 
   isRecording, 
+  recordingTime,
   onStartRecording, 
   onStopRecording, 
   onSendAlert, 
-  recordings 
+  isSendingAlert,
+  onUserAction
 }) => {
   return (
     <div className="space-y-6">
@@ -39,9 +41,16 @@ const RecordingControls = ({
           </p>
           
           {isRecording && (
-            <div className="flex items-center justify-center space-x-2 text-red-300">
-              <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium">REC</span>
+            <div className="flex flex-col items-center space-y-2">
+              <div className="flex items-center space-x-2 text-red-300">
+                <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">REC</span>
+              </div>
+              {recordingTime && (
+                <div className="text-lg font-mono text-white">
+                  {recordingTime}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -56,10 +65,20 @@ const RecordingControls = ({
         
         <button
           onClick={onSendAlert}
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
+          disabled={isSendingAlert}
+          className="w-full bg-orange-500 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center space-x-2"
         >
-          <Phone className="w-4 h-4" />
-          <span>Alert Emergency Contacts</span>
+          {isSendingAlert ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>Sending Alert...</span>
+            </>
+          ) : (
+            <>
+              <Phone className="w-4 h-4" />
+              <span>Alert Emergency Contacts</span>
+            </>
+          )}
         </button>
         
         <p className="text-xs text-white/60 mt-2 text-center">
@@ -67,39 +86,39 @@ const RecordingControls = ({
         </p>
       </div>
 
-      {/* Recent Recordings */}
-      {recordings.length > 0 && (
-        <div className="glass-card rounded-lg p-6 text-white">
-          <h2 className="text-xl font-bold mb-4 flex items-center">
-            <Clock className="w-5 h-5 mr-2" />
-            Recent Recordings
-          </h2>
-          
-          <div className="space-y-3">
-            {recordings.slice(-3).map((recording) => (
-              <div key={recording.id} className="flex items-center justify-between p-3 bg-white/10 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <Play className="w-4 h-4 text-blue-300" />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {recording.timestamp.toLocaleTimeString()}
-                    </p>
-                    <p className="text-xs text-white/60">
-                      {recording.timestamp.toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => window.open(recording.url, '_blank')}
-                  className="px-3 py-1 bg-blue-500 hover:bg-blue-600 rounded text-xs transition-colors"
-                >
-                  View
-                </button>
-              </div>
-            ))}
+      {/* Upgrade Prompt */}
+      <div className="glass-card rounded-lg p-6 text-white border border-yellow-400/30">
+        <div className="flex items-center mb-3">
+          <Crown className="w-5 h-5 mr-2 text-yellow-400" />
+          <h3 className="text-lg font-semibold">Upgrade to Premium</h3>
+        </div>
+        
+        <div className="space-y-2 text-sm text-white/80 mb-4">
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+            <span>Unlimited recording time</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+            <span>Up to 10 alert contacts</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+            <span>All 50 states + DC</span>
+          </div>
+          <div className="flex items-center">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+            <span>Spanish language support</span>
           </div>
         </div>
-      )}
+        
+        <button
+          onClick={() => onUserAction && onUserAction('upgrade')}
+          className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-all"
+        >
+          Upgrade for $4.99/month
+        </button>
+      </div>
     </div>
   )
 }
